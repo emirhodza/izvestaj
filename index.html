@@ -50,6 +50,7 @@ button.primary{background:var(--accent);border-color:var(--accent);color:#fff;fo
 .checks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .checks label{display:flex;gap:8px;align-items:center;font-size:14px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
 .checks input{width:20px;height:20px;flex:none}
+.addname{display:flex;gap:8px;margin-top:8px}.addname input{flex:1}
 .rows{display:flex;flex-direction:column}
 .row{display:grid;grid-template-columns:58px 1fr 76px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
 .row:last-child{border-bottom:0}
@@ -140,8 +141,12 @@ input.err,textarea.err{border-color:var(--warn)!important;box-shadow:0 0 0 2px v
   <div class="grid2">
     <label class="f" for="datum">Datum<input id="datum" type="date"></label>
     <label class="f" for="vrsta">Vrsta<select id="vrsta"><option value=""></option></select></label>
-    <label class="f" for="tehnicar">Tehničar(i)<input id="tehnicar" autocomplete="name"></label>
-    <label class="f" for="broj">Broj djelatnika<input id="broj" inputmode="numeric"></label>
+    <div class="f" style="grid-column:1/-1">Tehničari (tko je radio na nalogu)
+      <input id="tehnicar" type="hidden">
+      <div class="checks" id="radChips"></div>
+      <div class="addname"><input id="radNew" autocomplete="off" placeholder="Drugo ime – upiši i dodaj" aria-label="Drugo ime"><button type="button" id="radAdd">+ Dodaj</button></div>
+    </div>
+    <label class="f" for="broj">Broj djelatnika (automatski)<input id="broj" readonly></label>
     <label class="f" for="vrijeme">Vrijeme (h)<input id="vrijeme" inputmode="decimal"></label>
   </div>
   <label class="f" for="lokacija">Adresa / lokacija (zdenac, ulica, kabel)<input id="lokacija" placeholder="preuzima se s tiketa – možeš promijeniti"></label>
@@ -156,7 +161,7 @@ input.err,textarea.err{border-color:var(--warn)!important;box-shadow:0 0 0 2px v
 </section>
 
 <section class="card" aria-labelledby="h-r">
-  <h2 id="h-r"><span class="n">3</span>Radovi</h2>
+  <h2 id="h-r"><span class="n">3</span>Radovi montaža</h2>
   <div class="search">
     <label class="f" for="pSearch">Traži poziciju po šifri ili tekstu i dodaj je
       <input id="pSearch" type="search" autocomplete="off" placeholder="npr. spojnica, mjerenje, asfalt, 225.2">
@@ -167,8 +172,20 @@ input.err,textarea.err{border-color:var(--warn)!important;box-shadow:0 0 0 2px v
   <p class="hint" id="pozHint"></p>
 </section>
 
+<section class="card" aria-labelledby="h-tb">
+  <h2 id="h-tb"><span class="n">4</span>Radovi Tiefbau</h2>
+  <div class="search">
+    <label class="f" for="tbSearch">Traži građevinsku poziciju po šifri ili tekstu i dodaj je
+      <input id="tbSearch" type="search" autocomplete="off" placeholder="npr. iskop, asfalt, zdenac, 211.1">
+    </label>
+    <div id="tbResults" class="results" hidden></div>
+  </div>
+  <div id="tbExtra" class="rows"></div>
+  <p class="hint" id="tbHint"></p>
+</section>
+
 <section class="card" aria-labelledby="h-m">
-  <h2 id="h-m"><span class="n">4</span>Materijal</h2>
+  <h2 id="h-m"><span class="n">5</span>Materijal</h2>
   <div class="search">
     <label class="f" for="mSearch">Traži materijal po broju ili nazivu i dodaj ga
       <input id="mSearch" type="search" autocomplete="off" placeholder="npr. spojnica 43, cijev, 40976">
@@ -180,19 +197,23 @@ input.err,textarea.err{border-color:var(--warn)!important;box-shadow:0 0 0 2px v
 </section>
 
 <section class="card" aria-labelledby="h-d">
-  <h2 id="h-d"><span class="n">5</span>Opis radova <span class="req" title="obavezno">*</span></h2>
+  <h2 id="h-d"><span class="n">6</span>Opis radova <span class="req" title="obavezno">*</span></h2>
   <textarea id="opis" placeholder="Npr.: Otvoren zdenac i spojnica u ul. …, zamijenjena 2 modula, nanovo spojeno 20 parica, izvršeno mjerenje – uredno, spojnica zatvorena 75/15. Usluga radi. Iskop 2,0 × 0,5 × 0,8 m."></textarea>
 </section>
 
 <section class="card" aria-labelledby="h-s">
-  <h2 id="h-s"><span class="n">6</span>Slike</h2>
+  <h2 id="h-s"><span class="n">7</span>Slike montaža</h2>
   <p class="hint">Prvo izaberi vrstu, zatim snimi ili dodaj slike. Uvijek možeš dodati još.</p>
-  <div class="pcats" id="photoCats"></div>
-  
+  <div class="pcats" id="photoCatsM"></div>
+</section>
+
+<section class="card" aria-labelledby="h-st">
+  <h2 id="h-st"><span class="n">8</span>Slike Tiefbau</h2>
+  <div class="pcats" id="photoCatsT"></div>
 </section>
 
 <section class="card" aria-labelledby="h-p">
-  <h2 id="h-p"><span class="n">7</span>Potpis</h2>
+  <h2 id="h-p"><span class="n">9</span>Potpis</h2>
   <label class="f" for="potpis">Ime i prezime tehničara<input id="potpis" autocomplete="name"></label>
   <div class="sigprev" id="sigPrev"><span>Još nije potpisano</span></div>
   <div class="sigbtns"><button type="button" class="primary" id="sigOpen">✍️ Potpiši prstom</button><button type="button" id="sigClear" hidden>Obriši potpis</button></div>
@@ -265,7 +286,10 @@ const MAT_COMMON = [
  ["40976802","Cijev toploskupljajuća ATUM 40/13","m"]];
 const CHECKS = [["u_zdencu","Spojnica u zdencu"],["voda","Voda ispumpana"],["lociran","Lociran prekid"],["mjerenje","Mjerenje + zapisnik"],
  ["privremeno","Privremeno rješenje"],["treca_strana","Šteta od treće strane"],["nije_otklonjeno","Smetnja nije otklonjena"],["povezani","Povezano s tiketom"]];
-const MAX_POZ = 9, MAX_MAT = 12;
+const MAX_POZ = 9, MAX_MAT = 12, MAX_TB = 15;
+const TB_RE = /^(211|212|213|214|216|2101|2102)\./;
+const isTB = c => TB_RE.test(c||"");
+const EXTRA_BOX = {pozX:"pozExtra",tbX:"tbExtra",matX:"matExtra"};
 
 const $ = id => document.getElementById(id);
 const norm = s => (s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/đ/g,"d");
@@ -275,13 +299,13 @@ const today = () => new Date().toISOString().slice(0,10);
 // ---------- state ----------
 let S = blank();
 let photos = []; // {url, blob, tag}
-function blank(){ return {ticket:"",addr:"",datum:today(),vrsta:"",tehnicar:"",broj:"",vrijeme:"",lokacija:"",checks:{},pocinitelj:"",poz:{},mat:{},pozX:[],matX:[],opis:"",potpis:"",sig:""}; }
+function blank(){ return {ticket:"",addr:"",datum:today(),vrsta:"",tehnicar:"",radnici:[],broj:"",vrijeme:"",lokacija:"",checks:{},pocinitelj:"",poz:{},mat:{},pozX:[],tbX:[],matX:[],opis:"",potpis:"",sig:""}; }
 const store = {
   get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } },
   set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} },
   del(k){ try{ localStorage.removeItem(k); }catch(e){} }
 };
-let saveT; function save(){ clearTimeout(saveT); saveT=setTimeout(()=>{ if(S.ticket) store.set("izv:"+S.ticket,S); store.set("izv:last",{ticket:S.ticket,tehnicar:S.tehnicar,broj:S.broj}); },300); }
+let saveT; function save(){ clearTimeout(saveT); saveT=setTimeout(()=>{ if(S.ticket) store.set("izv:"+S.ticket,S); store.set("izv:last",{ticket:S.ticket,tehnicar:S.tehnicar,broj:S.broj,radnici:S.radnici}); },300); }
 
 // ---------- generic search ----------
 function searchList(list, q, max=40){
@@ -295,11 +319,12 @@ function searchList(list, q, max=40){
   for(const [,item] of res){ out.push(item); if(out.length>=max) break; }
   return out;
 }
-const POZ_ITEMS = POZ_COMMON.map(([c,t])=>({s:c+" - "+t})).concat(LISTS.poz.map(s=>({s:s.trim()})));
+const POZ_ITEMS = POZ_COMMON.map(([c,t])=>({s:c+" - "+t})).concat(LISTS.poz.map(s=>({s:s.trim()})).filter(it=>!isTB((/^(\d{3,4}\.\d{2}[a-z]?)\s-\s/.exec(it.s)||[])[1])));
+const TB_ITEMS = LISTS.poz.map(s=>({s:s.trim()})).filter(it=>isTB((/^(\d{3,4}\.\d{2}[a-z]?)\s-\s/.exec(it.s)||[])[1]));
 const COMMON_CODES = new Set(POZ_COMMON.map(x=>x[0]));
 const codeOf = l => { const m=/^(\d{3,4}\.\d{2}[a-z]?)\s-\s/.exec(l||""); return m?m[1]:null; };
 const countsPoz = arr => arr.filter(r=>!COMMON_CODES.has(codeOf(r.l))).length;
-function migrate(st){ if(st.poz&&Object.keys(st.poz).length){ for(const [c,q] of Object.entries(st.poz)){ const t=(POZ_COMMON.find(x=>x[0]===c)||[c,""])[1]; st.pozX.unshift({l:c+" - "+t,q}); } st.poz={}; } if(st.mat&&Object.keys(st.mat).length){ for(const [c,q] of Object.entries(st.mat)){ const m=MAT_COMMON.find(x=>x[0]===c)||[c,"",""]; st.matX.unshift({l:c+" - "+m[1]+" ("+m[2]+")",q}); } st.mat={}; } return st; }
+function migrate(st){ if(!st.radnici) st.radnici=st.tehnicar?st.tehnicar.split(/\s*,\s*/).filter(Boolean):[]; if(!st.tbX) st.tbX=[]; if(st.poz&&Object.keys(st.poz).length){ for(const [c,q] of Object.entries(st.poz)){ const t=(POZ_COMMON.find(x=>x[0]===c)||[c,""])[1]; st.pozX.unshift({l:c+" - "+t,q}); } st.poz={}; } if(st.mat&&Object.keys(st.mat).length){ for(const [c,q] of Object.entries(st.mat)){ const m=MAT_COMMON.find(x=>x[0]===c)||[c,"",""]; st.matX.unshift({l:c+" - "+m[1]+" ("+m[2]+")",q}); } st.mat={}; } return st; }
 const MAT_CODES = new Set(MAT_COMMON.map(x=>x[0]));
 const MAT_ITEMS = MAT_COMMON.map(([c,t,u])=>({s:c+" - "+t+" ("+u+")"})).concat(LISTS.mat.map(s=>({s:s.trim()})).filter(it=>!MAT_CODES.has(it.s.slice(0,8))));
 const matCode = l => { const m=/^(\d{8})\s-\s/.exec(l||""); return m?m[1]:null; };
@@ -330,7 +355,7 @@ function chooseTicket(nr,addr){
   const last = store.get("izv:last")||{};
   const draft = store.get("izv:"+nr);
   if(draft){ S=migrate(draft); if(addr){ S.addr=addr; if(!S.lokacija) S.lokacija=addr; } flash("Nastavljen nacrt za tiket "+nr+"."); }
-  else { S=blank(); S.ticket=nr; S.addr=addr; S.lokacija=addr; S.tehnicar=last.tehnicar||""; S.broj=last.broj||""; }
+  else { S=blank(); S.ticket=nr; S.addr=addr; S.lokacija=addr; S.tehnicar=last.tehnicar||""; S.broj=last.broj||""; S.radnici=last.radnici||[]; }
   photos.forEach(p=>URL.revokeObjectURL(p.url)); photos=[]; renderPhotos();
   fillForm(); save();
 }
@@ -362,9 +387,21 @@ function fillForm(){
   $("tcNr").textContent=S.ticket; $("tcAddr").textContent=S.addr||"Adresa nije na popisu";
   simple.forEach(k=>$(k).value=S[k]||"");
   CHECKS.forEach(([k])=>$("ck_"+k).checked=!!S.checks[k]);
+  renderRad();
   renderExtras();
   renderSig();
 }
+const RAD_DEFAULT=["Luciano","Fabian"];
+function radAll(){ const saved=store.get("izv:radnici")||[]; return [...new Set([...RAD_DEFAULT,...saved,...S.radnici])]; }
+function renderRad(){
+  if(!S.radnici) S.radnici=[];
+  $("radChips").innerHTML=radAll().map(n=>`<label><input type="checkbox" data-rad="${esc(n)}"${S.radnici.includes(n)?" checked":""}>${esc(n)}</label>`).join("");
+  S.tehnicar=S.radnici.join(", "); S.broj=S.radnici.length?String(S.radnici.length):"";
+  $("tehnicar").value=S.tehnicar; $("broj").value=S.broj;
+}
+$("radChips").addEventListener("change",e=>{ const c=e.target.closest("[data-rad]"); if(!c) return; const n=c.dataset.rad; S.radnici=S.radnici.filter(x=>x!==n); if(c.checked) S.radnici.push(n); renderRad(); save(); });
+function addRad(){ const n=$("radNew").value.trim().replace(/\s+/g," "); if(!n) return; const saved=store.get("izv:radnici")||[]; if(!radAll().some(x=>x.toLowerCase()===n.toLowerCase())) store.set("izv:radnici",[...saved,n]); const ex=radAll().find(x=>x.toLowerCase()===n.toLowerCase()); if(!S.radnici.includes(ex)) S.radnici.push(ex); $("radNew").value=""; renderRad(); save(); flash(`${ex} dodan. Broj djelatnika: ${S.radnici.length}.`,"ok"); }
+$("radAdd").addEventListener("click",addRad);
 simple.forEach(k=>$(k).addEventListener("input",()=>{ S[k]=$(k).value; save(); }));
 
 // build static parts
@@ -391,20 +428,22 @@ function setupExtra(inputId,resId,items,key,max){
     const b=e.target.closest("button"); if(!b) return;
     const label = b.dataset.free ? inp.value.trim() : items[+b.dataset.i].s;
     const dup=S[key].findIndex(r=>r.l===label);
-    if(dup>=0){ inp.value=""; box.hidden=true; const q=document.querySelectorAll(`#${key==="pozX"?"pozExtra":"matExtra"} input`)[dup]; if(q) q.focus(); flash("Pozicija je već dodana – upiši količinu."); return; }
-    const used = key==="pozX" ? countsPoz(S[key]) : countsMat(S[key]);
-    const willCount = key==="pozX" ? !COMMON_CODES.has(codeOf(label)) : !MAT_CODES.has(matCode(label));
-    if(willCount && used>=max){ flash(key==="pozX"?`U PDF stane najviše ${max} rijetkih pozicija – izbriši jednu.`:`U PDF stane najviše ${max} rijetkih materijala – izbriši jedan.`,"err"); return; }
+    if(dup>=0){ inp.value=""; box.hidden=true; const q=document.querySelectorAll(`#${EXTRA_BOX[key]} input`)[dup]; if(q) q.focus(); flash("Pozicija je već dodana – upiši količinu."); return; }
+    const used = key==="pozX" ? countsPoz(S[key]) : key==="tbX" ? S[key].length : countsMat(S[key]);
+    const willCount = key==="pozX" ? !COMMON_CODES.has(codeOf(label)) : key==="tbX" ? true : !MAT_CODES.has(matCode(label));
+    if(willCount && used>=max){ flash(key==="matX"?`U PDF stane najviše ${max} rijetkih materijala – izbriši jedan.`:`U PDF stane najviše ${max} pozicija – izbriši jednu.`,"err"); return; }
     S[key].push({l:label,q:""}); inp.value=""; box.hidden=true; renderExtras(); save();
-    const qs=document.querySelectorAll(`#${key==="pozX"?"pozExtra":"matExtra"} input`); if(qs.length) qs[qs.length-1].focus();
+    const qs=document.querySelectorAll(`#${EXTRA_BOX[key]} input`); if(qs.length) qs[qs.length-1].focus();
   });
 }
 setupExtra("pSearch","pResults",POZ_ITEMS,"pozX",MAX_POZ);
+setupExtra("tbSearch","tbResults",TB_ITEMS,"tbX",MAX_TB);
 setupExtra("mSearch","mResults",MAT_ITEMS,"matX",MAX_MAT);
 function renderExtras(){
-  for(const [key,boxId,hintId,max] of [["pozX","pozExtra","pozHint",MAX_POZ],["matX","matExtra","matHint",MAX_MAT]]){
+  for(const [key,boxId,hintId,max] of [["pozX","pozExtra","pozHint",MAX_POZ],["tbX","tbExtra","tbHint",MAX_TB],["matX","matExtra","matHint",MAX_MAT]]){
     $(boxId).innerHTML=S[key].map((r,i)=>`<div class="extra"><span class="lbl">${esc(r.l)}</span><input inputmode="decimal" enterkeyhint="done" data-k="${key}" data-i="${i}" value="${esc(r.q)}" aria-label="Količina" placeholder="kol."><button type="button" class="ok" data-ok aria-label="Gotovo">✓</button><button type="button" data-del="${key}:${i}" aria-label="Izbriši">✕</button></div>`).join("");
     if(key==="pozX") $(hintId).textContent = S[key].length ? `${S[key].length} pozicija dodano (rijetkih ${countsPoz(S[key])} od ${max})` : "Još nema pozicija – traži iznad i dodaj.";
+    else if(key==="tbX") $(hintId).textContent = S[key].length ? `${S[key].length} pozicija dodano (najviše ${max})` : "Nema građevinskih radova – dodaj samo ako je bilo iskopa ili sanacije.";
     else $(hintId).textContent = S[key].length ? `${S[key].length} materijala dodano (rijetkih ${countsMat(S[key])} od ${max})` : "Još nema materijala – traži iznad i dodaj.";
   }
 }
@@ -415,7 +454,7 @@ function validate(){
   document.querySelectorAll(".err").forEach(e=>e.classList.remove("err"));
   const bad=[]; let noTicket=false, noQty=0;
   if(!S.ticket){ noTicket=true; $("tSearch").classList.add("err"); bad.push($("tSearch")); }
-  for(const key of ["pozX","matX"]) S[key].forEach((r,i)=>{ if(!qtyOk(r.q)){ noQty++; const el=document.querySelector(`input[data-k="${key}"][data-i="${i}"]`); if(el){ el.classList.add("err"); bad.push(el); } } });
+  for(const key of ["pozX","tbX","matX"]) S[key].forEach((r,i)=>{ if(!qtyOk(r.q)){ noQty++; const el=document.querySelector(`input[data-k="${key}"][data-i="${i}"]`); if(el){ el.classList.add("err"); bad.push(el); } } });
   const noOpis = (S.opis||"").trim().length<3; if(noOpis){ $("opis").classList.add("err"); bad.push($("opis")); }
   const msg=[]; if(noTicket) msg.push("izaberi tiket"); if(noQty) msg.push(`upiši količinu (nedostaje ${noQty}×)`); if(noOpis) msg.push("upiši opis radova");
   return {bad, msg: msg.length ? "Obavezno: "+msg.join(" i ")+"." : ""};
@@ -424,19 +463,21 @@ document.addEventListener("pointerdown",e=>{ if(e.target.closest("[data-ok]")){ 
 document.addEventListener("click",e=>{ const b=e.target.closest("[data-del]"); if(!b) return; const [k,i]=b.dataset.del.split(":"); S[k].splice(+i,1); renderExtras(); save(); });
 
 // ---------- photos ----------
-const PCATS=["Prije","Poslije","Mjerenje","Tijekom","Ostalo"];
-$("photoCats").innerHTML=PCATS.map(c=>`<div class="pcat" id="pc_${c}"><div class="pcat-h"><b>${c}</b><span class="cnt" id="pcn_${c}">0 slika</span></div><label class="filebtn" for="f_${c}">+ Dodaj slike: ${c}<input id="f_${c}" type="file" accept="image/*" multiple data-cat="${c}"></label><div class="photos" id="pp_${c}"></div></div>`).join("");
-$("photoCats").addEventListener("change",async e=>{
-  const inp=e.target.closest("input[type=file]");
-  if(inp){
-    const cat=inp.dataset.cat, files=[...inp.files]; inp.value="";
-    flash("Obrađujem slike…");
-    for(const f of files){ try{ const blob=await shrink(f); photos.push({blob,url:URL.createObjectURL(blob),tag:cat}); }catch(err){ flash("Slika "+f.name+" se ne može učitati.","err"); } }
-    renderPhotos(); flash(`${files.length} slika dodano u „${cat}“. Ukupno ${photos.length}.`,"ok"); return;
-  }
-  const s=e.target.closest("[data-ph]"); if(s){ photos[+s.dataset.ph].tag=s.value; renderPhotos(); }
-});
-$("photoCats").addEventListener("click",e=>{ const b=e.target.closest("[data-rm]"); if(!b) return; const i=+b.dataset.rm; URL.revokeObjectURL(photos[i].url); photos.splice(i,1); renderPhotos(); });
+const PGROUPS=[{g:"m",box:"photoCatsM",title:"Slike montaža",cats:["Prije","Poslije","Mjerenje"]},{g:"t",box:"photoCatsT",title:"Slike Tiefbau",cats:["Prije","Poslije"]}];
+for(const G of PGROUPS){
+  $(G.box).innerHTML=G.cats.map(c=>`<div class="pcat" id="pc_${G.g}_${c}"><div class="pcat-h"><b>${c}</b><span class="cnt" id="pcn_${G.g}_${c}">0 slika</span></div><label class="filebtn" for="f_${G.g}_${c}">+ Dodaj slike: ${c}<input id="f_${G.g}_${c}" type="file" accept="image/*" multiple data-tag="${G.g}:${c}" data-lbl="${G.title} · ${c}"></label><div class="photos" id="pp_${G.g}_${c}"></div></div>`).join("");
+  $(G.box).addEventListener("change",async e=>{
+    const inp=e.target.closest("input[type=file]");
+    if(inp){
+      const tag=inp.dataset.tag, lbl=inp.dataset.lbl, files=[...inp.files]; inp.value="";
+      flash("Obrađujem slike…");
+      for(const f of files){ try{ const blob=await shrink(f); photos.push({blob,url:URL.createObjectURL(blob),tag}); }catch(err){ flash("Slika "+f.name+" se ne može učitati.","err"); } }
+      renderPhotos(); flash(`${files.length} slika dodano u „${lbl}“. Ukupno ${photos.length}.`,"ok"); return;
+    }
+    const sel=e.target.closest("[data-ph]"); if(sel){ photos[+sel.dataset.ph].tag=sel.value; renderPhotos(); }
+  });
+  $(G.box).addEventListener("click",e=>{ const b=e.target.closest("[data-rm]"); if(!b) return; const i=+b.dataset.rm; URL.revokeObjectURL(photos[i].url); photos.splice(i,1); renderPhotos(); });
+}
 async function shrink(file){
   const bmp = await createImageBitmap(file).catch(()=>null);
   let w,h,src;
@@ -447,11 +488,12 @@ async function shrink(file){
   return await new Promise(r=>c.toBlob(r,"image/jpeg",0.72));
 }
 function renderPhotos(){
-  for(const c of PCATS){
-    const list=photos.map((p,i)=>[p,i]).filter(([p])=>p.tag===c);
-    $("pp_"+c).innerHTML=list.map(([p,i])=>`<div class="photo"><img src="${p.url}" alt="${c} ${i+1}"><div class="pr"><select data-ph="${i}" aria-label="Premjesti sliku">${PCATS.map(o=>`<option${o===p.tag?" selected":""}>${o}</option>`).join("")}</select><button type="button" data-rm="${i}" aria-label="Ukloni sliku">✕</button></div></div>`).join("");
-    $("pcn_"+c).textContent=list.length===1?"1 slika":list.length+" slika";
-    $("pc_"+c).classList.toggle("has",list.length>0);
+  for(const G of PGROUPS) for(const c of G.cats){
+    const tag=G.g+":"+c;
+    const list=photos.map((p,i)=>[p,i]).filter(([p])=>p.tag===tag);
+    $("pp_"+G.g+"_"+c).innerHTML=list.map(([p,i])=>`<div class="photo"><img src="${p.url}" alt="${c} ${i+1}"><div class="pr"><select data-ph="${i}" aria-label="Premjesti sliku">${G.cats.map(o=>`<option value="${G.g}:${o}"${o===c?" selected":""}>${o}</option>`).join("")}</select><button type="button" data-rm="${i}" aria-label="Ukloni sliku">✕</button></div></div>`).join("");
+    $("pcn_"+G.g+"_"+c).textContent=list.length===1?"1 slika":list.length+" slika";
+    $("pc_"+G.g+"_"+c).classList.toggle("has",list.length>0);
   }
 }
 
@@ -569,16 +611,18 @@ async function buildPdf(){
   });
   const pozUnit=r=>{ const c=codeOf(r.l); const x=POZ_COMMON.find(p=>p[0]===c); return x?x[2]:""; };
   const matUnit=r=>{ const m=/\((kom|m)\)\s*$/.exec(r.l); return m?m[1]:""; };
-  const pRows=S.pozX.filter(r=>r.l), mRows=S.matX.filter(r=>r.l).map(r=>({l:r.l.replace(/\s*\((kom|m)\)\s*$/,""),q:r.q,_u:matUnit(r)}));
-  card("Radovi",2,pRows.length*19+30,()=>{ if(pRows.length) table(pRows,pozUnit); else { text("Nema upisanih radova.",M+12,y,{s:10,c:C.muted}); y-=14; } });
-  card("Materijal",3,mRows.length*19+30,()=>{ if(mRows.length) table(mRows,r=>r._u); else { text("Nema upisanog materijala.",M+12,y,{s:10,c:C.muted}); y-=14; } });
+  const pRows=S.pozX.filter(r=>r.l), tRows=S.tbX.filter(r=>r.l), mRows=S.matX.filter(r=>r.l).map(r=>({l:r.l.replace(/\s*\((kom|m)\)\s*$/,""),q:r.q,_u:matUnit(r)}));
+  let cn=2;
+  card("Radovi montaža",cn++,pRows.length*19+30,()=>{ if(pRows.length) table(pRows,pozUnit); else { text("Nema upisanih radova.",M+12,y,{s:10,c:C.muted}); y-=14; } });
+  if(tRows.length) card("Radovi Tiefbau",cn++,tRows.length*19+30,()=>{ table(tRows,()=>""); });
+  card("Materijal",cn++,mRows.length*19+30,()=>{ if(mRows.length) table(mRows,r=>r._u); else { text("Nema upisanog materijala.",M+12,y,{s:10,c:C.muted}); y-=14; } });
   const opisL=wrap(S.opis||"",F,10.5,CW-24);
-  card("Opis radova",4,opisL.length*14,()=>{ if(!S.opis){ text("—",M+12,y,{s:10,c:C.muted}); y-=14; } for(const l of opisL){ need(16); text(l,M+12,y,{s:10.5}); y-=14; } });
+  card("Opis radova",cn++,opisL.length*14,()=>{ if(!S.opis){ text("—",M+12,y,{s:10,c:C.muted}); y-=14; } for(const l of opisL){ need(16); text(l,M+12,y,{s:10.5}); y-=14; } });
   // Potpis links
   // Unterschrift weiß auf schwarz
   async function whiteSig(url){ const im=await new Promise((res,rej)=>{ const i=new Image(); i.onload=()=>res(i); i.onerror=rej; i.src=url; }); const c=document.createElement("canvas"); c.width=im.width; c.height=im.height; const x=c.getContext("2d"); x.drawImage(im,0,0); x.globalCompositeOperation="source-in"; x.fillStyle="#ffffff"; x.fillRect(0,0,c.width,c.height); return b64(c.toDataURL("image/png").split(",")[1]); }
   let sigImg=null; if(S.sig){ try{ sigImg=await doc.embedPng(await whiteSig(S.sig)); }catch(e){ console.warn("sig",e.message); } }
-  card("Potpis tehničara",5,90,()=>{
+  card("Potpis tehničara",cn++,90,()=>{
     need(80);
     const bx={x:M+12,y:y-62,w:220,h:62};
     page.drawRectangle({x:bx.x,y:bx.y,width:bx.w,height:bx.h,color:rgb(0,0,0),borderColor:C.line,borderWidth:0.8});
@@ -587,12 +631,12 @@ async function buildPdf(){
     y=bx.y-14; text(S.potpis||"",M+12,y,{s:10.5,b:true}); y-=8;
   });
   // Fotos: je Thema eigene Seiten, 4 pro Seite (2×2)
-  for(const cat of PCATS){
-    const list=photos.filter(p=>p.tag===cat); if(!list.length) continue;
+  for(const G of PGROUPS) for(const cat of G.cats){
+    const list=photos.filter(p=>p.tag===G.g+":"+cat); if(!list.length) continue;
     for(let i=0;i<list.length;i+=4){
       newPage();
       text(`Izveštaj · tiket ${S.ticket}`,M,y-12,{s:10,b:true,c:C.ink});
-      y-=40; text(`Slike · ${cat}`,M,y,{s:18,b:true,c:C.ink});
+      y-=40; text(`${G.title} · ${cat}`,M,y,{s:18,b:true,c:C.ink});
       const t=`${i+1}–${Math.min(i+4,list.length)} od ${list.length}`; text(t,W-M-tw(t,F,10),y+4,{s:10,c:C.muted});
       y-=16;
       const gap=10, cellW=(CW-gap)/2, cellH=(y-M-24-gap)/2;
@@ -614,7 +658,8 @@ function summaryText(){
   const L=[`IZVEŠTAJ – tiket ${S.ticket}`,`Datum: ${S.datum}  Tehničar: ${S.tehnicar}  Djelatnika: ${S.broj}  Vrijeme: ${S.vrijeme} h`,`Lokacija: ${S.lokacija}`,`Vrsta: ${S.vrsta}`];
   const ck=CHECKS.filter(([k])=>S.checks[k]).map(([,l])=>l); if(ck.length) L.push("Označeno: "+ck.join(", "));
   if(S.pocinitelj) L.push("Počinitelj / povezani tiket: "+S.pocinitelj);
-  L.push("","RADOVI:"); S.pozX.forEach(r=>L.push(`${r.l}: ${r.q}`));
+  L.push("","RADOVI MONTAŽA:"); S.pozX.forEach(r=>L.push(`${r.l}: ${r.q}`));
+  if(S.tbX.length){ L.push("","RADOVI TIEFBAU:"); S.tbX.forEach(r=>L.push(`${r.l}: ${r.q}`)); }
   L.push("","MATERIJAL:"); S.matX.forEach(r=>L.push(`${r.l}: ${r.q}`));
   L.push("","OPIS:",S.opis||"","",`Potpis: ${S.potpis}${S.sig?" (potpisano)":""}`, `Slike: ${photos.length}`); return L.join("\n");
 }
@@ -639,8 +684,8 @@ function resetAfterSave(){
     const done=fileName();
     // Formular nach dem Speichern automatisch leeren (Techniker/Anzahl bleiben)
     if(S.ticket) store.del("izv:"+S.ticket);
-    const keep={tehnicar:S.tehnicar,broj:S.broj};
-    S=blank(); S.tehnicar=keep.tehnicar; S.broj=keep.broj; store.set("izv:last",{ticket:"",...keep});
+    const keep={tehnicar:S.tehnicar,broj:S.broj,radnici:S.radnici};
+    S=blank(); S.tehnicar=keep.tehnicar; S.broj=keep.broj; S.radnici=keep.radnici; store.set("izv:last",{ticket:"",...keep});
     photos.forEach(p=>URL.revokeObjectURL(p.url)); photos=[]; renderPhotos();
     $("tSearch").value=""; fillForm(); renderTicketResults(); window.scrollTo({top:0,behavior:"smooth"});
     flash(`Spremljeno: ${done} – obrazac je spreman za sljedeći tiket.`,"ok");
@@ -660,7 +705,7 @@ $("copyBtn").addEventListener("click",()=>{ const t=$("copyText"); navigator.cli
 
 // ---------- start ----------
 renderTicketResults();
-(function(){ const last=store.get("izv:last")||{}; S.tehnicar=last.tehnicar||""; S.broj=last.broj||""; fillForm(); })();
+(function(){ const last=store.get("izv:last")||{}; S.tehnicar=last.tehnicar||""; S.broj=last.broj||""; S.radnici=last.radnici||(S.tehnicar?S.tehnicar.split(/\s*,\s*/).filter(Boolean):[]); fillForm(); })();
 
 // ---------- Enter = gotovo ----------
 document.querySelectorAll("input:not([type=checkbox]):not([type=file])").forEach(el=>{ if(!el.getAttribute("enterkeyhint")) el.setAttribute("enterkeyhint",el.type==="search"?"go":"done"); });
@@ -669,8 +714,10 @@ document.addEventListener("keydown",e=>{
   const t=e.target; if(e.key!=="Enter"||t.tagName!=="INPUT"||e.isComposing) return;
   e.preventDefault();
   const first = sel => { const b=document.querySelector(sel); if(b&&!b.disabled){ b.click(); return true; } return false; };
+  if(t.id==="radNew"){ addRad(); return; }
   if(t.id==="tSearch"){ if(t.value.trim()) first("#tResults button"); return; }
   if(t.id==="pSearch"){ if(t.value.trim()) first("#pResults button"); return; }
+  if(t.id==="tbSearch"){ if(t.value.trim()) first("#tbResults button"); return; }
   if(t.id==="mSearch"){ if(t.value.trim()) first("#mResults button"); return; }
   if(t.id==="pocinitelj" && !$("cResults").hidden && first("#cResults button")) return;
   t.blur();
