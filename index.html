@@ -391,7 +391,7 @@ function fillForm(){
   renderExtras();
   renderSig();
 }
-const RAD_DEFAULT=["Luciano","Fabian"];
+const RAD_DEFAULT=["Lucijano","Filip"];
 function radAll(){ const saved=store.get("izv:radnici")||[]; return [...new Set([...RAD_DEFAULT,...saved,...S.radnici])]; }
 function renderRad(){
   if(!S.radnici) S.radnici=[];
@@ -399,8 +399,8 @@ function renderRad(){
   S.tehnicar=S.radnici.join(", "); S.broj=S.radnici.length?String(S.radnici.length):"";
   $("tehnicar").value=S.tehnicar; $("broj").value=S.broj;
 }
-$("radChips").addEventListener("change",e=>{ const c=e.target.closest("[data-rad]"); if(!c) return; const n=c.dataset.rad; S.radnici=S.radnici.filter(x=>x!==n); if(c.checked) S.radnici.push(n); renderRad(); save(); });
-function addRad(){ const n=$("radNew").value.trim().replace(/\s+/g," "); if(!n) return; const saved=store.get("izv:radnici")||[]; if(!radAll().some(x=>x.toLowerCase()===n.toLowerCase())) store.set("izv:radnici",[...saved,n]); const ex=radAll().find(x=>x.toLowerCase()===n.toLowerCase()); if(!S.radnici.includes(ex)) S.radnici.push(ex); $("radNew").value=""; renderRad(); save(); flash(`${ex} dodan. Broj djelatnika: ${S.radnici.length}.`,"ok"); }
+$("radChips").addEventListener("change",e=>{ const c=e.target.closest("[data-rad]"); if(!c) return; const n=c.dataset.rad; S.radnici=S.radnici.filter(x=>x!==n); if(c.checked) S.radnici.push(n); if(S.radnici.length) $("radNew").classList.remove("err"); renderRad(); save(); });
+function addRad(){ const n=$("radNew").value.trim().replace(/\s+/g," "); if(!n) return; const saved=store.get("izv:radnici")||[]; if(!radAll().some(x=>x.toLowerCase()===n.toLowerCase())) store.set("izv:radnici",[...saved,n]); const ex=radAll().find(x=>x.toLowerCase()===n.toLowerCase()); if(!S.radnici.includes(ex)) S.radnici.push(ex); $("radNew").value=""; $("radNew").classList.remove("err"); renderRad(); save(); flash(`${ex} dodan. Broj djelatnika: ${S.radnici.length}.`,"ok"); }
 $("radAdd").addEventListener("click",addRad);
 simple.forEach(k=>$(k).addEventListener("input",()=>{ S[k]=$(k).value; save(); }));
 
@@ -455,8 +455,10 @@ function validate(){
   const bad=[]; let noTicket=false, noQty=0;
   if(!S.ticket){ noTicket=true; $("tSearch").classList.add("err"); bad.push($("tSearch")); }
   for(const key of ["pozX","tbX","matX"]) S[key].forEach((r,i)=>{ if(!qtyOk(r.q)){ noQty++; const el=document.querySelector(`input[data-k="${key}"][data-i="${i}"]`); if(el){ el.classList.add("err"); bad.push(el); } } });
+  if($("radNew").value.trim()) addRad();
+  const noRad = !S.radnici.length; if(noRad){ $("radNew").classList.add("err"); bad.push($("radNew")); }
   const noOpis = (S.opis||"").trim().length<3; if(noOpis){ $("opis").classList.add("err"); bad.push($("opis")); }
-  const msg=[]; if(noTicket) msg.push("izaberi tiket"); if(noQty) msg.push(`upiši količinu (nedostaje ${noQty}×)`); if(noOpis) msg.push("upiši opis radova");
+  const msg=[]; if(noTicket) msg.push("izaberi tiket"); if(noRad) msg.push("odaberi barem jednog tehničara"); if(noQty) msg.push(`upiši količinu (nedostaje ${noQty}×)`); if(noOpis) msg.push("upiši opis radova");
   return {bad, msg: msg.length ? "Obavezno: "+msg.join(" i ")+"." : ""};
 }
 document.addEventListener("pointerdown",e=>{ if(e.target.closest("[data-ok]")){ e.preventDefault(); const a=document.activeElement; if(a&&a.blur) a.blur(); flash("Količina spremljena.","ok"); } });
