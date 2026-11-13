@@ -63,6 +63,7 @@ button.primary{background:var(--accent);border-color:var(--accent);color:#fff;fo
 .extra{display:grid;grid-template-columns:1fr 66px 40px 40px;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
 .extra:last-child{border-bottom:0}
 .extra button.ok{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+#radBox.err{border:2px solid var(--warn);border-radius:10px;padding:8px}
 input.err,textarea.err{border-color:var(--warn)!important;box-shadow:0 0 0 2px var(--warn)}
 .req{color:var(--warn);font-weight:700}
 .extra .lbl{font-size:13px;min-width:0;overflow-wrap:anywhere}
@@ -141,7 +142,7 @@ input.err,textarea.err{border-color:var(--warn)!important;box-shadow:0 0 0 2px v
   <div class="grid2">
     <label class="f" for="datum">Datum<input id="datum" type="date"></label>
     <label class="f" for="vrsta">Vrsta<select id="vrsta"><option value=""></option></select></label>
-    <div class="f" style="grid-column:1/-1">Tehničari (tko je radio na nalogu)
+    <div class="f" id="radBox" style="grid-column:1/-1">Tehničari (tko je radio na nalogu) <span class="req" title="obavezno">*</span>
       <input id="tehnicar" type="hidden">
       <div class="checks" id="radChips"></div>
       <div class="addname"><input id="radNew" autocomplete="off" placeholder="Drugo ime – upiši i dodaj" aria-label="Drugo ime"><button type="button" id="radAdd">+ Dodaj</button></div>
@@ -399,8 +400,8 @@ function renderRad(){
   S.tehnicar=S.radnici.join(", "); S.broj=S.radnici.length?String(S.radnici.length):"";
   $("tehnicar").value=S.tehnicar; $("broj").value=S.broj;
 }
-$("radChips").addEventListener("change",e=>{ const c=e.target.closest("[data-rad]"); if(!c) return; const n=c.dataset.rad; S.radnici=S.radnici.filter(x=>x!==n); if(c.checked) S.radnici.push(n); if(S.radnici.length) $("radNew").classList.remove("err"); renderRad(); save(); });
-function addRad(){ const n=$("radNew").value.trim().replace(/\s+/g," "); if(!n) return; const saved=store.get("izv:radnici")||[]; if(!radAll().some(x=>x.toLowerCase()===n.toLowerCase())) store.set("izv:radnici",[...saved,n]); const ex=radAll().find(x=>x.toLowerCase()===n.toLowerCase()); if(!S.radnici.includes(ex)) S.radnici.push(ex); $("radNew").value=""; $("radNew").classList.remove("err"); renderRad(); save(); flash(`${ex} dodan. Broj djelatnika: ${S.radnici.length}.`,"ok"); }
+$("radChips").addEventListener("change",e=>{ const c=e.target.closest("[data-rad]"); if(!c) return; const n=c.dataset.rad; S.radnici=S.radnici.filter(x=>x!==n); if(c.checked) S.radnici.push(n); if(S.radnici.length){ $("radNew").classList.remove("err"); $("radBox").classList.remove("err"); } renderRad(); save(); });
+function addRad(){ const n=$("radNew").value.trim().replace(/\s+/g," "); if(!n) return; const saved=store.get("izv:radnici")||[]; if(!radAll().some(x=>x.toLowerCase()===n.toLowerCase())) store.set("izv:radnici",[...saved,n]); const ex=radAll().find(x=>x.toLowerCase()===n.toLowerCase()); if(!S.radnici.includes(ex)) S.radnici.push(ex); $("radNew").value=""; $("radNew").classList.remove("err"); $("radBox").classList.remove("err"); renderRad(); save(); flash(`${ex} dodan. Broj djelatnika: ${S.radnici.length}.`,"ok"); }
 $("radAdd").addEventListener("click",addRad);
 simple.forEach(k=>$(k).addEventListener("input",()=>{ S[k]=$(k).value; save(); }));
 
@@ -456,7 +457,7 @@ function validate(){
   if(!S.ticket){ noTicket=true; $("tSearch").classList.add("err"); bad.push($("tSearch")); }
   for(const key of ["pozX","tbX","matX"]) S[key].forEach((r,i)=>{ if(!qtyOk(r.q)){ noQty++; const el=document.querySelector(`input[data-k="${key}"][data-i="${i}"]`); if(el){ el.classList.add("err"); bad.push(el); } } });
   if($("radNew").value.trim()) addRad();
-  const noRad = !S.radnici.length; if(noRad){ $("radNew").classList.add("err"); bad.push($("radNew")); }
+  const noRad = !S.radnici.length; if(noRad){ $("radBox").classList.add("err"); $("radNew").classList.add("err"); bad.push($("radNew")); }
   const noOpis = (S.opis||"").trim().length<3; if(noOpis){ $("opis").classList.add("err"); bad.push($("opis")); }
   const msg=[]; if(noTicket) msg.push("izaberi tiket"); if(noRad) msg.push("odaberi barem jednog tehničara"); if(noQty) msg.push(`upiši količinu (nedostaje ${noQty}×)`); if(noOpis) msg.push("upiši opis radova");
   return {bad, msg: msg.length ? "Obavezno: "+msg.join(" i ")+"." : ""};
