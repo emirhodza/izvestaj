@@ -41,7 +41,7 @@ button.primary{background:var(--accent);border-color:var(--accent);color:#fff;fo
 .micwrap{position:relative;display:block}
 .subh{font-family:var(--display);font-size:19px;font-weight:bold;color:var(--ink);text-transform:none;letter-spacing:0}
 #opis::placeholder,#tbOpis::placeholder{color:var(--muted);opacity:1}
-.mic{position:absolute;top:8px;right:8px;width:44px;height:44px;min-height:0;padding:0;border-radius:50%;font-size:22px;line-height:1;display:flex;align-items:center;justify-content:center}
+.mic{display:none!important;position:absolute;top:8px;right:8px;width:44px;height:44px;min-height:0;padding:0;border-radius:50%;font-size:22px;line-height:1;display:flex;align-items:center;justify-content:center}
 .results{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:8px;overflow:hidden;max-height:170px;overflow-y:auto;background:var(--surface)}
 .results button{border:0;border-bottom:1px solid var(--line);border-radius:0;text-align:left;padding:6px 10px;display:flex;flex-direction:column;gap:2px;background:transparent}
 .results button:last-child{border-bottom:0}
@@ -758,7 +758,7 @@ renderTicketResults();
   ids.forEach(id=>{
     const el=$(id); const btn=document.createElement("button"); btn.type="button"; btn.textContent="🎤"; btn.className="mic"; btn.title="Diktiraj na hrvatskom";
     btn.setAttribute("aria-label","Diktiraj opis na hrvatskom");
-    const wrap=document.createElement("div"); wrap.className="micwrap"; el.parentNode.insertBefore(wrap,el); wrap.appendChild(el); wrap.appendChild(btn); el.style.paddingRight="58px";
+    const wrap=document.createElement("div"); wrap.className="micwrap"; el.parentNode.insertBefore(wrap,el); wrap.appendChild(el); wrap.appendChild(btn);
     btn.addEventListener("click",()=>{
       if(!d){ el.focus(); flash("Diktiranje nije podržano u ovom pregledniku."); return; }
       if(d.active()){ d.stop().catch(()=>{}); return; }
