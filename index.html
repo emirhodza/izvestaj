@@ -204,6 +204,10 @@ input.err,textarea.err{border-color:var(--warn)!important;box-shadow:0 0 0 2px v
   <div class="f" style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em">Podloga (što je otvoreno / saniran)
     <div class="checks" id="tbPov"></div>
   </div>
+  <label class="f" for="tbFirma">Izvođač radova (firma / podizvođač)
+    <input id="tbFirma" list="tbFirmaList" autocomplete="off" placeholder="Izaberi s popisa ili upiši firmu">
+    <datalist id="tbFirmaList"><option value="AB Install"></option></datalist>
+  </label>
   <label class="f" for="tbOpis">Opis Tiefbau
     <textarea id="tbOpis" style="min-height:110px;text-transform:none;font-weight:400;letter-spacing:0" placeholder="Npr.: Iskop 2,0 × 0,5 × 0,8 m u asfaltu, zatrpano tucanikom, asfalt zatvoren hladnim asfaltom. Dubina kabela 0,6 m."></textarea>
   </label>
@@ -306,7 +310,7 @@ const today = () => new Date().toISOString().slice(0,10);
 // ---------- state ----------
 let S = blank();
 let photos = []; // {url, blob, tag}
-function blank(){ return {ticket:"",addr:"",datum:today(),vrsta:"",tehnicar:"",radnici:[],broj:"",vrijeme:"",lokacija:"",checks:{},pocinitelj:"",poz:{},mat:{},pozX:[],tbX:[],matX:[],opis:"",tbPov:[],tbOpis:"",potpis:"",sig:""}; }
+function blank(){ return {ticket:"",addr:"",datum:today(),vrsta:"",tehnicar:"",radnici:[],broj:"",vrijeme:"",lokacija:"",checks:{},pocinitelj:"",poz:{},mat:{},pozX:[],tbX:[],matX:[],opis:"",tbPov:[],tbOpis:"",tbFirma:"",potpis:"",sig:""}; }
 const store = {
   get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } },
   set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} },
@@ -331,7 +335,7 @@ const TB_ITEMS = LISTS.poz.map(s=>({s:s.trim()})).filter(it=>isTB((/^(\d{3,4}\.\
 const COMMON_CODES = new Set(POZ_COMMON.map(x=>x[0]));
 const codeOf = l => { const m=/^(\d{3,4}\.\d{2}[a-z]?)\s-\s/.exec(l||""); return m?m[1]:null; };
 const countsPoz = arr => arr.filter(r=>!COMMON_CODES.has(codeOf(r.l))).length;
-function migrate(st){ if(!st.tbPov) st.tbPov=[]; if(st.tbOpis==null) st.tbOpis=""; if(!st.radnici) st.radnici=st.tehnicar?st.tehnicar.split(/\s*,\s*/).filter(Boolean):[]; if(!st.tbX) st.tbX=[]; if(st.poz&&Object.keys(st.poz).length){ for(const [c,q] of Object.entries(st.poz)){ const t=(POZ_COMMON.find(x=>x[0]===c)||[c,""])[1]; st.pozX.unshift({l:c+" - "+t,q}); } st.poz={}; } if(st.mat&&Object.keys(st.mat).length){ for(const [c,q] of Object.entries(st.mat)){ const m=MAT_COMMON.find(x=>x[0]===c)||[c,"",""]; st.matX.unshift({l:c+" - "+m[1]+" ("+m[2]+")",q}); } st.mat={}; } return st; }
+function migrate(st){ if(!st.tbPov) st.tbPov=[]; if(st.tbOpis==null) st.tbOpis=""; if(st.tbFirma==null) st.tbFirma=""; if(!st.radnici) st.radnici=st.tehnicar?st.tehnicar.split(/\s*,\s*/).filter(Boolean):[]; if(!st.tbX) st.tbX=[]; if(st.poz&&Object.keys(st.poz).length){ for(const [c,q] of Object.entries(st.poz)){ const t=(POZ_COMMON.find(x=>x[0]===c)||[c,""])[1]; st.pozX.unshift({l:c+" - "+t,q}); } st.poz={}; } if(st.mat&&Object.keys(st.mat).length){ for(const [c,q] of Object.entries(st.mat)){ const m=MAT_COMMON.find(x=>x[0]===c)||[c,"",""]; st.matX.unshift({l:c+" - "+m[1]+" ("+m[2]+")",q}); } st.mat={}; } return st; }
 const MAT_CODES = new Set(MAT_COMMON.map(x=>x[0]));
 const MAT_ITEMS = MAT_COMMON.map(([c,t,u])=>({s:c+" - "+t+" ("+u+")"})).concat(LISTS.mat.map(s=>({s:s.trim()})).filter(it=>!MAT_CODES.has(it.s.slice(0,8))));
 const matCode = l => { const m=/^(\d{8})\s-\s/.exec(l||""); return m?m[1]:null; };
@@ -387,7 +391,7 @@ $("cResults").addEventListener("click",e=>{
 });
 
 // ---------- form <-> state ----------
-const simple=["datum","vrsta","tehnicar","broj","vrijeme","lokacija","pocinitelj","opis","tbOpis","potpis"];
+const simple=["datum","vrsta","tehnicar","broj","vrijeme","lokacija","pocinitelj","opis","tbOpis","tbFirma","potpis"];
 const TB_POV=[["asfalt","Asfalt"],["plocnik","Popločenje / kocke"],["trava","Trava / zemlja"]];
 function fillForm(){
   const has=!!S.ticket;
@@ -633,12 +637,13 @@ async function buildPdf(){
   card("Opis radova",cn++,opisL.length*14,()=>{ if(!S.opis){ text("—",M+12,y,{s:10,c:C.muted}); y-=14; } for(const l of opisL){ need(16); text(l,M+12,y,{s:10.5}); y-=14; } });
   const tbPovTxt=TB_POV.filter(([k])=>(S.tbPov||[]).includes(k)).map(([,l])=>l).join(" · ");
   const hasTbPhotos=photos.some(p=>p.tag.startsWith("t:"));
-  if(tbPovTxt||(S.tbOpis||"").trim()||tRows.length||hasTbPhotos){
+  if(tbPovTxt||(S.tbFirma||"").trim()||(S.tbOpis||"").trim()||tRows.length||hasTbPhotos){
     const tbL=wrap(S.tbOpis||"",F,10.5,CW-24);
     card("Tiefbau",cn++,tbL.length*14+40,()=>{
+      if((S.tbFirma||"").trim()) kv("Izvođač",S.tbFirma);
       if(tbPovTxt) kv("Podloga",tbPovTxt);
       if((S.tbOpis||"").trim()){ for(const l of tbL){ need(16); text(l,M+12,y,{s:10.5}); y-=14; } }
-      else if(!tbPovTxt){ text("—",M+12,y,{s:10,c:C.muted}); y-=14; }
+      else if(!tbPovTxt&&!(S.tbFirma||"").trim()){ text("—",M+12,y,{s:10,c:C.muted}); y-=14; }
     });
   }
   // Potpis links
@@ -683,7 +688,7 @@ function summaryText(){
   if(S.pocinitelj) L.push("Počinitelj / povezani tiket: "+S.pocinitelj);
   L.push("","RADOVI MONTAŽA:"); S.pozX.forEach(r=>L.push(`${r.l}: ${r.q}`));
   if(S.tbX.length){ L.push("","RADOVI TIEFBAU:"); S.tbX.forEach(r=>L.push(`${r.l}: ${r.q}`)); }
-  { const pv=TB_POV.filter(([k])=>(S.tbPov||[]).includes(k)).map(([,l])=>l).join(", "); if(pv||(S.tbOpis||"").trim()) L.push("","TIEFBAU:",pv?"Podloga: "+pv:"",S.tbOpis||""); }
+  { const pv=TB_POV.filter(([k])=>(S.tbPov||[]).includes(k)).map(([,l])=>l).join(", "); if(pv||(S.tbFirma||"").trim()||(S.tbOpis||"").trim()) L.push("","TIEFBAU:",(S.tbFirma||"").trim()?"Izvođač: "+S.tbFirma:"",pv?"Podloga: "+pv:"",S.tbOpis||""); }
   L.push("","MATERIJAL:"); S.matX.forEach(r=>L.push(`${r.l}: ${r.q}`));
   L.push("","OPIS:",S.opis||"","",`Potpis: ${S.potpis}${S.sig?" (potpisano)":""}`, `Slike: ${photos.length}`); return L.join("\n");
 }
@@ -753,7 +758,7 @@ renderTicketResults();
     btn.setAttribute("aria-label","Diktiraj opis na hrvatskom");
     const wrap=document.createElement("div"); wrap.className="micwrap"; el.parentNode.insertBefore(wrap,el); wrap.appendChild(el); wrap.appendChild(btn); el.style.paddingRight="58px";
     btn.addEventListener("click",()=>{
-      if(!d){ el.focus(); flash("Ovdje nema izravnog diktiranja – dodirni mikrofon 🎤 na tipkovnici mobitela i govori hrvatski."); return; }
+      if(!d){ el.focus(); flash("Diktiranje nije podržano u ovom pregledniku."); return; }
       if(d.active()){ d.stop().catch(()=>{}); return; }
       cur={el,btn};
       d.start({language:"hr"}).catch(err=>{
