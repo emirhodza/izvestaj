@@ -39,6 +39,7 @@ button.primary{background:var(--accent);border-color:var(--accent);color:#fff;fo
 .search{position:relative}
 #radBox.err{border:2px solid var(--warn);border-radius:10px;padding:8px}
 .micwrap{position:relative;display:block}
+#opis::placeholder,#tbOpis::placeholder{color:var(--muted);opacity:1}
 .mic{position:absolute;top:8px;right:8px;width:44px;height:44px;min-height:0;padding:0;border-radius:50%;font-size:22px;line-height:1;display:flex;align-items:center;justify-content:center}
 .results{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:8px;overflow:hidden;max-height:170px;overflow-y:auto;background:var(--surface)}
 .results button{border:0;border-bottom:1px solid var(--line);border-radius:0;text-align:left;padding:6px 10px;display:flex;flex-direction:column;gap:2px;background:transparent}
@@ -189,7 +190,7 @@ input.err,textarea.err{border-color:var(--warn)!important;box-shadow:0 0 0 2px v
 </section>
 
 <section class="card" aria-labelledby="h-d">
-  <h2 id="h-d"><span class="n">5</span>Opis radova <span class="req" title="obavezno">*</span></h2>
+  <h2 id="h-d"><span class="n">5</span>Opis radova montaža <span class="req" title="obavezno">*</span></h2>
   <textarea id="opis" placeholder="Ako ne želiš tipkati, pritisni mikrofon 🎤 dolje na tipkovnici i govori.&#10;&#10;Npr.: Otvoren zdenac i spojnica u ul. …, zamijenjena 2 modula, nanovo spojeno 20 parica, izvršeno mjerenje – uredno, spojnica zatvorena 75/15. Usluga radi. Iskop 2,0 × 0,5 × 0,8 m."></textarea>
 </section>
 
@@ -200,7 +201,7 @@ input.err,textarea.err{border-color:var(--warn)!important;box-shadow:0 0 0 2px v
 </section>
 
 <section class="card" aria-labelledby="h-st">
-  <h2 id="h-st"><span class="n">7</span>Tiefbau</h2>
+  <h2 id="h-st"><span class="n">7</span>Građevinski radovi</h2>
   <div class="f" style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em">Podloga (što je otvoreno / saniran)
     <div class="checks" id="tbPov"></div>
   </div>
@@ -208,18 +209,18 @@ input.err,textarea.err{border-color:var(--warn)!important;box-shadow:0 0 0 2px v
     <input id="tbFirma" list="tbFirmaList" autocomplete="off" placeholder="Izaberi s popisa ili upiši firmu">
     <datalist id="tbFirmaList"><option value="AB Install"></option></datalist>
   </label>
-  <label class="f" for="tbOpis">Opis Tiefbau
+  <label class="f" for="tbOpis">Opis radova građevina
     <textarea id="tbOpis" style="min-height:110px;text-transform:none;font-weight:400;letter-spacing:0" placeholder="Ako ne želiš tipkati, pritisni mikrofon 🎤 dolje na tipkovnici i govori.&#10;&#10;Npr.: Iskop 2,0 × 0,5 × 0,8 m u asfaltu, zatrpano tucanikom, asfalt zatvoren hladnim asfaltom. Dubina kabela 0,6 m."></textarea>
   </label>
   <div class="search">
-    <label class="f" for="tbSearch">Pozicije Tiefbau – traži po šifri ili tekstu i dodaj
+    <label class="f" for="tbSearch">Pozicije građevinskih radova – traži po šifri ili tekstu i dodaj
       <input id="tbSearch" type="search" autocomplete="off" placeholder="npr. iskop, asfalt, zdenac, 211.1">
     </label>
     <div id="tbResults" class="results" hidden></div>
   </div>
   <div id="tbExtra" class="rows"></div>
   <p class="hint" id="tbHint"></p>
-  <p class="hint">Slike Tiefbau – prvo izaberi vrstu, zatim dodaj slike.</p>
+  <p class="hint">Slike građevinskih radova – prvo izaberi vrstu, zatim dodaj slike.</p>
   <div class="pcats" id="photoCatsT"></div>
 </section>
 
@@ -480,7 +481,7 @@ document.addEventListener("pointerdown",e=>{ if(e.target.closest("[data-ok]")){ 
 document.addEventListener("click",e=>{ const b=e.target.closest("[data-del]"); if(!b) return; const [k,i]=b.dataset.del.split(":"); S[k].splice(+i,1); renderExtras(); save(); });
 
 // ---------- photos ----------
-const PGROUPS=[{g:"m",box:"photoCatsM",title:"Slike montaža",cats:["Prije","Poslije","Mjerenje"]},{g:"t",box:"photoCatsT",title:"Tiefbau · slike",cats:["Prije","Poslije"]}];
+const PGROUPS=[{g:"m",box:"photoCatsM",title:"Slike montaža",cats:["Prije","Poslije","Mjerenje"]},{g:"t",box:"photoCatsT",title:"Građevina · slike",cats:["Prije","Poslije"]}];
 for(const G of PGROUPS){
   $(G.box).innerHTML=G.cats.map(c=>`<div class="pcat" id="pc_${G.g}_${c}"><div class="pcat-h"><b>${c}</b><span class="cnt" id="pcn_${G.g}_${c}">0 slika</span></div><label class="filebtn" for="f_${G.g}_${c}">+ Dodaj slike: ${c}<input id="f_${G.g}_${c}" type="file" accept="image/*" multiple data-tag="${G.g}:${c}" data-lbl="${G.title} · ${c}"></label><div class="photos" id="pp_${G.g}_${c}"></div></div>`).join("");
   $(G.box).addEventListener("change",async e=>{
@@ -631,7 +632,7 @@ async function buildPdf(){
   const pRows=S.pozX.filter(r=>r.l), tRows=S.tbX.filter(r=>r.l), mRows=S.matX.filter(r=>r.l).map(r=>({l:r.l.replace(/\s*\((kom|m)\)\s*$/,""),q:r.q,_u:matUnit(r)}));
   let cn=2;
   card("Radovi montaža",cn++,pRows.length*19+30,()=>{ if(pRows.length) table(pRows,pozUnit); else { text("Nema upisanih radova.",M+12,y,{s:10,c:C.muted}); y-=14; } });
-  if(tRows.length) card("Radovi Tiefbau",cn++,tRows.length*19+30,()=>{ table(tRows,()=>""); });
+  if(tRows.length) card("Radovi građevina",cn++,tRows.length*19+30,()=>{ table(tRows,()=>""); });
   card("Materijal",cn++,mRows.length*19+30,()=>{ if(mRows.length) table(mRows,r=>r._u); else { text("Nema upisanog materijala.",M+12,y,{s:10,c:C.muted}); y-=14; } });
   const opisL=wrap(S.opis||"",F,10.5,CW-24);
   card("Opis radova",cn++,opisL.length*14,()=>{ if(!S.opis){ text("—",M+12,y,{s:10,c:C.muted}); y-=14; } for(const l of opisL){ need(16); text(l,M+12,y,{s:10.5}); y-=14; } });
@@ -639,7 +640,7 @@ async function buildPdf(){
   const hasTbPhotos=photos.some(p=>p.tag.startsWith("t:"));
   if(tbPovTxt||(S.tbFirma||"").trim()||(S.tbOpis||"").trim()||tRows.length||hasTbPhotos){
     const tbL=wrap(S.tbOpis||"",F,10.5,CW-24);
-    card("Tiefbau",cn++,tbL.length*14+40,()=>{
+    card("Građevinski radovi",cn++,tbL.length*14+40,()=>{
       if((S.tbFirma||"").trim()) kv("Izvođač",S.tbFirma);
       if(tbPovTxt) kv("Podloga",tbPovTxt);
       if((S.tbOpis||"").trim()){ for(const l of tbL){ need(16); text(l,M+12,y,{s:10.5}); y-=14; } }
@@ -687,8 +688,8 @@ function summaryText(){
   const ck=CHECKS.filter(([k])=>S.checks[k]).map(([,l])=>l); if(ck.length) L.push("Označeno: "+ck.join(", "));
   if(S.pocinitelj) L.push("Počinitelj / povezani tiket: "+S.pocinitelj);
   L.push("","RADOVI MONTAŽA:"); S.pozX.forEach(r=>L.push(`${r.l}: ${r.q}`));
-  if(S.tbX.length){ L.push("","RADOVI TIEFBAU:"); S.tbX.forEach(r=>L.push(`${r.l}: ${r.q}`)); }
-  { const pv=TB_POV.filter(([k])=>(S.tbPov||[]).includes(k)).map(([,l])=>l).join(", "); if(pv||(S.tbFirma||"").trim()||(S.tbOpis||"").trim()) L.push("","TIEFBAU:",(S.tbFirma||"").trim()?"Izvođač: "+S.tbFirma:"",pv?"Podloga: "+pv:"",S.tbOpis||""); }
+  if(S.tbX.length){ L.push("","RADOVI GRAĐEVINA:"); S.tbX.forEach(r=>L.push(`${r.l}: ${r.q}`)); }
+  { const pv=TB_POV.filter(([k])=>(S.tbPov||[]).includes(k)).map(([,l])=>l).join(", "); if(pv||(S.tbFirma||"").trim()||(S.tbOpis||"").trim()) L.push("","GRAĐEVINA:",(S.tbFirma||"").trim()?"Izvođač: "+S.tbFirma:"",pv?"Podloga: "+pv:"",S.tbOpis||""); }
   L.push("","MATERIJAL:"); S.matX.forEach(r=>L.push(`${r.l}: ${r.q}`));
   L.push("","OPIS:",S.opis||"","",`Potpis: ${S.potpis}${S.sig?" (potpisano)":""}`, `Slike: ${photos.length}`); return L.join("\n");
 }
