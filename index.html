@@ -465,6 +465,7 @@ function renderExtras(){
   }
 }
 document.getElementById("opis").addEventListener("input",e=>{ if(e.target.value.trim().length>=3) e.target.classList.remove("err"); });
+document.getElementById("tbOpis").addEventListener("input",e=>{ if(e.target.value.trim().length>=3) e.target.classList.remove("err"); });
 const qtyOk = v => /^\s*\d+([.,]\d+)?\s*$/.test(String(v||"")) && parseFloat(String(v).replace(",","."))>0;
 document.addEventListener("input",e=>{ const t=e.target; if(t.dataset&&t.dataset.k){ S[t.dataset.k][+t.dataset.i].q=t.value; if(qtyOk(t.value)) t.classList.remove("err"); save(); } });
 function validate(){
@@ -475,7 +476,8 @@ function validate(){
   if($("radNew").value.trim()) addRad();
   const noRad = !S.radnici.length; if(noRad){ $("radBox").classList.add("err"); $("radNew").classList.add("err"); bad.push($("radNew")); }
   const noOpis = (S.opis||"").trim().length<3; if(noOpis){ $("opis").classList.add("err"); bad.push($("opis")); }
-  const msg=[]; if(noTicket) msg.push("izaberi tiket"); if(noRad) msg.push("odaberi barem jednog tehničara"); if(noQty) msg.push(`upiši količinu (nedostaje ${noQty}×)`); if(noOpis) msg.push("upiši opis radova");
+  const noTb = (S.tbPov||[]).length>0 && (S.tbOpis||"").trim().length<3; if(noTb){ $("tbOpis").classList.add("err"); bad.push($("tbOpis")); }
+  const msg=[]; if(noTicket) msg.push("izaberi tiket"); if(noRad) msg.push("odaberi barem jednog tehničara"); if(noQty) msg.push(`upiši količinu (nedostaje ${noQty}×)`); if(noOpis) msg.push("upiši opis radova"); if(noTb) msg.push("upiši opis radova građevina");
   return {bad, msg: msg.length ? "Obavezno: "+msg.join(" i ")+"." : ""};
 }
 document.addEventListener("pointerdown",e=>{ if(e.target.closest("[data-ok]")){ e.preventDefault(); const a=document.activeElement; if(a&&a.blur) a.blur(); flash("Količina spremljena.","ok"); } });
