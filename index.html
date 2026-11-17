@@ -370,7 +370,7 @@ function chooseTicket(nr,addr){
   const last = store.get("izv:last")||{};
   const draft = store.get("izv:"+nr);
   if(draft){ S=migrate(draft); if(addr){ S.addr=addr; if(!S.lokacija) S.lokacija=addr; } flash("Nastavljen nacrt za tiket "+nr+"."); }
-  else { S=blank(); S.ticket=nr; S.addr=addr; S.lokacija=addr; S.tehnicar=last.tehnicar||""; S.broj=last.broj||""; S.radnici=last.radnici||[]; }
+  else { S=blank(); S.ticket=nr; S.addr=addr; S.lokacija=addr; }
   photos.forEach(p=>URL.revokeObjectURL(p.url)); photos=[]; renderPhotos();
   fillForm(); save();
 }
@@ -718,10 +718,8 @@ $("pdfBtn").addEventListener("click",async()=>{
 let lastPdf=null;
 function resetAfterSave(){
     const done=fileName();
-    // Formular nach dem Speichern automatisch leeren (Techniker/Anzahl bleiben)
     if(S.ticket) store.del("izv:"+S.ticket);
-    const keep={tehnicar:S.tehnicar,broj:S.broj,radnici:S.radnici};
-    S=blank(); S.tehnicar=keep.tehnicar; S.broj=keep.broj; S.radnici=keep.radnici; store.set("izv:last",{ticket:"",...keep});
+    S=blank(); store.set("izv:last",{ticket:""});
     photos.forEach(p=>URL.revokeObjectURL(p.url)); photos=[]; renderPhotos();
     $("tSearch").value=""; fillForm(); renderTicketResults(); window.scrollTo({top:0,behavior:"smooth"});
     flash(`Spremljeno: ${done} – obrazac je spreman za sljedeći tiket.`,"ok");
@@ -741,7 +739,7 @@ $("copyBtn").addEventListener("click",()=>{ const t=$("copyText"); navigator.cli
 
 // ---------- start ----------
 renderTicketResults();
-(function(){ const last=store.get("izv:last")||{}; S.tehnicar=last.tehnicar||""; S.broj=last.broj||""; S.radnici=last.radnici||(S.tehnicar?S.tehnicar.split(/\s*,\s*/).filter(Boolean):[]); fillForm(); })();
+fillForm();
 
 // ---------- diktat na hrvatskom (mikrofon) ----------
 (async function(){
