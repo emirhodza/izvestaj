@@ -409,7 +409,8 @@ function fillForm(){
   renderSig();
 }
 const RAD_DEFAULT=["Lucijano","Filip"];
-function radAll(){ const saved=store.get("izv:radnici")||[]; return [...new Set([...RAD_DEFAULT,...saved,...S.radnici])]; }
+const RAD_REMOVED=["emir","ivan"]; const radOk=n=>!RAD_REMOVED.includes(String(n).trim().toLowerCase().split(" ")[0]);
+function radAll(){ let saved=store.get("izv:radnici")||[]; if(saved.some(n=>!radOk(n))){ saved=saved.filter(radOk); store.set("izv:radnici",saved); } if(S.radnici&&S.radnici.some(n=>!radOk(n))) S.radnici=S.radnici.filter(radOk); return [...new Set([...RAD_DEFAULT,...saved,...S.radnici])]; }
 function renderRad(){
   if(!S.radnici) S.radnici=[];
   $("radChips").innerHTML=radAll().map(n=>`<label><input type="checkbox" data-rad="${esc(n)}"${S.radnici.includes(n)?" checked":""}>${esc(n)}</label>`).join("");
